@@ -4,7 +4,7 @@ from json import JSONEncoder
 from collections import namedtuple
 import requests
 
-from scraper.dto import endpoint_summoner_v4_by_name
+from scraper.dto import endpoint_summoner_v4_by_name, https_prefix
 
 
 # https://developer.riotgames.com/apis#summoner-v4
@@ -54,6 +54,6 @@ class SummonerApi:
     def request_summoner(self, host: PlatformHost, summoner_name: str) -> SummonerDto:
         response = requests.get(https_prefix + host.value +
                                 endpoint_summoner_v4_by_name.format(summoner_name, self.api_key))
-        string = response.content.decode("utf-8")
-        summoner: SummonerDto = from_json(string)
+        string_contents = response.content.decode("utf-8")
+        summoner: SummonerDto = from_json(string_contents)
         return summoner
