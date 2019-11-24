@@ -4,7 +4,7 @@ from scraper import LOGGER
 
 
 def throttle_executions(throttled: callable(None), args, max_invocations_per_sec: float,
-                        status_log_frequency_sec: int = None):
+                        status_log_frequency_sec: float = None):
     start = time.time()
     last_logged = 0
     invocations = 1
