@@ -1,28 +1,9 @@
-import json
 from enum import Enum
-from json import JSONEncoder
-from collections import namedtuple
+
 import requests
 
-from scraper.dto import endpoint_summoner_v4_by_name, https_prefix
-
-
-# https://developer.riotgames.com/apis#summoner-v4
-class SummonerDto:
-    profileIconId: int
-    name: str
-    puuid: str
-    summonerLevel: int
-    revisionDate: int
-    id: str
-    accountId: str
-
-    def __init__(self, dict):
-        vars(self).update(dict)
-
-
-def from_json(json_str: str) -> SummonerDto:
-    return json.loads(json_str, object_hook=SummonerDto)
+from scraper import endpoint_summoner_v4_by_name, https_prefix
+from scraper.dto.summoner_v4 import SummonerDto, from_json
 
 
 class PlatformHost(Enum):
@@ -45,7 +26,7 @@ class RegionalHost(Enum):
     EUROPE = "europe.api.riotgames.com"
 
 
-class SummonerApi:
+class LeagueOfLegendsApi:
     api_key: str
 
     def __init__(self, api_key) -> None:

@@ -13,3 +13,6 @@ formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(messag
 ch.setFormatter(formatter)
 # add ch to logger
 LOGGER.addHandler(ch)
+
+endpoint_summoner_v4_by_name = "/lol/summoner/v4/summoners/by-name/{}?api_key={}"
+https_prefix = "https://"

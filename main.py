@@ -1,18 +1,19 @@
 from scraper import throttle
-from scraper.dto.summoner_v4_by_name import SummonerApi, PlatformHost
 import sys
+
+from scraper.api import LeagueOfLegendsApi, PlatformHost
 
 
 class TaskConfig:
-    conf: SummonerApi
+    conf: LeagueOfLegendsApi
 
     def __init__(self, summoner_api) -> None:
-        self.summoner_api = summoner_api
+        self.api = summoner_api
 
 
-def throttled_function(conf: TaskConfig):
+def throttled_function(config: TaskConfig):
     summoner_name = "ravebee"
-    summoner = conf.summoner_api.request_summoner(PlatformHost.OC1, summoner_name)
+    summoner = config.api.request_summoner(PlatformHost.OC1, summoner_name)
     account_id = summoner.accountId
 
 
@@ -26,5 +27,5 @@ if __name__ == "__main__":
     # Retrieve dev API key from https://developer.riotgames.com/
     api_key = sys.argv[1]
     print("Running with API key " + api_key)
-    conf = TaskConfig(SummonerApi(api_key))
+    conf = TaskConfig(LeagueOfLegendsApi(api_key))
     throttle.throttle_executions(throttled_function, conf, speed_limit, log_frequency_sec)
