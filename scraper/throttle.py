@@ -3,11 +3,12 @@ import time
 from scraper import LOGGER
 
 
-def throttle_executions(throttled: callable(None), max_invocations_per_sec: int, status_log_frequency_sec: int = None):
+def throttle_executions(throttled: callable(None), args, max_invocations_per_sec: float,
+                        status_log_frequency_sec: int = None):
     start = time.time()
     last_logged = 0
     invocations = 1
-    throttled()
+    throttled(args)
     # avoid division by 0 if function didn't take a measurable amount of time
     avg_expected_length_sec = 1 / max_invocations_per_sec
     end = time.time()
@@ -20,7 +21,7 @@ def throttle_executions(throttled: callable(None), max_invocations_per_sec: int,
 
         invocations_per_sec = invocations / processing_time_sec
         if invocations_per_sec < max_invocations_per_sec:
-            throttled()
+            throttled(args)
             invocations += 1
         else:
             estimated_wait_time = invocations * avg_expected_length_sec - processing_time_sec
