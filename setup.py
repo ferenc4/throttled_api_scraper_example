@@ -7,4 +7,4 @@ def install(name):
 
 install("requests")
 install("lxml")
-install("limits")
+install("ratelimit")
