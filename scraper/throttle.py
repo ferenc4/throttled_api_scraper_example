@@ -3,12 +3,27 @@ import time
 from scraper import LOGGER
 
 
-def throttle_executions(throttled: callable(None), args, max_invocations_per_sec: float,
+class TaskContext:
+    task_stack: [callable]
+
+    def __init__(self, task_stack) -> None:
+        self.task_stack = task_stack
+
+    def push(self, task):
+        self.task_stack.append(task)
+
+
+def invoke_next_task(context: TaskContext):
+    next_task: callable(TaskContext) = context.task_stack.pop()
+    context.push(next_task(context))
+
+
+def throttle_executions(context: TaskContext, max_invocations_per_sec: float,
                         status_log_frequency_sec: float = None):
     start = time.time()
     last_logged = 0
     invocations = 1
-    throttled(args)
+    invoke_next_task(context)
     # avoid division by 0 if function didn't take a measurable amount of time
     avg_expected_length_sec = 1 / max_invocations_per_sec
     end = time.time()
@@ -21,7 +36,7 @@ def throttle_executions(throttled: callable(None), args, max_invocations_per_sec
 
         invocations_per_sec = invocations / processing_time_sec
         if invocations_per_sec < max_invocations_per_sec:
-            throttled(args)
+            invoke_next_task(context)
             invocations += 1
         else:
             estimated_wait_time = invocations * avg_expected_length_sec - processing_time_sec
