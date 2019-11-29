@@ -2,10 +2,9 @@ import sys
 
 from scraper import throttle
 from scraper.api import LeagueOfLegendsApi, PlatformHost
-from scraper.throttle import TaskContext
 
 
-class ApiTaskContext(TaskContext):
+class ApiTaskContext:
     api: LeagueOfLegendsApi
     summoner_name_to_acc_id: {}
     acc_id_to_match_id: {}
@@ -26,12 +25,14 @@ class ApiTaskContext(TaskContext):
 
 
 def next_match_id(context, account_id):
+    totalGames = 1
+    # while
     results: []
     for match_id in results:
         saved_match_ids = context.acc_id_to_match_id[account_id]
         if saved_match_ids is not None and match_id not in saved_match_ids:
             context.put_match_id(account_id, match_id)
-    # return next_pagination
+    return
 
 
 def user_lookup(context: ApiTaskContext, summoner_name: str, host: PlatformHost):
