@@ -2,3 +2,6 @@ venv/
 *.spec
 .idea/
 *.log
+*.csv
+logs/
+out/
