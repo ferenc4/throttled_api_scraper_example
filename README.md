@@ -9,4 +9,6 @@ To run the app:
 ```
 py main.py INSERT_API_KEY_HERE
 ```
-Retrieve dev API key from https://developer.riotgames.com/
+Retrieve dev API key: 
+
+https://developer.riotgames.com/

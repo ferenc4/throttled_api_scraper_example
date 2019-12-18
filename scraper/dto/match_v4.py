@@ -265,6 +265,8 @@ class ParticipantDto:
                 self.masteries = []
                 for ary_entry in v:
                     self.masteries.append(MasteryDto(ary_entry))
+            elif k == 'stats':
+                self.stats = ParticipantStatsDto(v)
             else:
                 self.__setattr__(k, v)
 

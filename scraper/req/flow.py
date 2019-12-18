@@ -1,8 +1,11 @@
-from scraper.csv_tools import save_to
-from scraper.dto.match_v4 import MatchlistDto, MatchReferenceDto
-from scraper.req import MATCH_REFERENCE_FILE, SUMMONER_FILE, MATCH_DETAIL_FILE
+import os
+
+from scraper.csv_tools import append_csv
+from scraper.dto.match_v4 import MatchlistDto, MatchReferenceDto, MatchDto
+from scraper.req import MATCH_REFERENCE_FILE, SUMMONER_FILE, MATCH_DETAIL_FILE_TEMPLATE, OUTPUT_PARENT
 from scraper.req.api import LeagueOfLegendsApi, PlatformHost
 from scraper.tasks import TaskExecutor
+from scraper.view.match_view import match_dto_to_view
 
 
 class ApiTaskExecutor(TaskExecutor):
@@ -30,26 +33,26 @@ class ApiTaskExecutor(TaskExecutor):
     # add as task
     def new_summoner(self, summoner_name: str):
         summoner = self.api.request_summoner(self.platform, summoner_name)
-        save_to(SUMMONER_FILE, summoner)
+        append_csv(SUMMONER_FILE, summoner.__dict__)
         acc_id = summoner.accountId
         self.put_acc_id(summoner_name, acc_id)
-        self.task_stack.append(lambda: self.match_ids(acc_id, 0, 100))
+        self.task_stack.append(lambda: self.match_ids(summoner_name, acc_id, 0, 100))
 
     # add as task
-    def match_ids(self, account_id: str, first: int, last: int):
-        match_list = self.api.request_match_list(self.platform, account_id, first, last)
+    def match_ids(self, summoner_name: str, account_id: str, first: int, last: int):
+        match_list = self.api.request_match_list(self.platform, account_id, first, last, summoner_name)
         matches: [MatchReferenceDto] = match_list.matches
         if match_list.endIndex < match_list.totalGames:
             start_index = match_list.endIndex
             end_index = match_list.endIndex + 100
             if end_index > match_list.totalGames:
                 end_index = match_list.totalGames
-            self.task_stack.append(lambda: self.match_ids(account_id, start_index, end_index))
+            self.task_stack.append(lambda: self.match_ids(summoner_name, account_id, start_index, end_index))
         for match in matches:
-            save_to(MATCH_REFERENCE_FILE, match)
+            append_csv(MATCH_REFERENCE_FILE, match.__dict__)
             self.put_match_id(account_id, match.gameId)
-            self.task_stack.append(lambda: self.match_details(match.gameId))
+            self.task_stack.append(lambda: self.match_details(summoner_name, match.gameId))
 
-    def match_details(self, match_id: str):
-        match = self.api.request_match_details(self.platform, match_id)
-        save_to(MATCH_DETAIL_FILE, match)
+    def match_details(self, summoner_name: str, match_id: str):
+        match: MatchDto = self.api.request_match_details(summoner_name, self.platform, match_id)
+        append_csv(MATCH_DETAIL_FILE_TEMPLATE.format(summoner_name), match_dto_to_view(match))
